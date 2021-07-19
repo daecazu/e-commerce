@@ -1,0 +1,70 @@
+volumes:
+  postgres_data: {}
+  postgres_data_backups: {}
+  static_data:
+
+x-django: &django
+    build:
+      context: .
+      dockerfile: ./base/compose/django/Dockerfile
+    image: django
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - .env
+    volumes:
+      - ./base/app:/app
+        
+services:
+  django: 
+    <<: *django
+    ports:
+      - "${DJANGO_PORTS:-8000:8000}"
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+
+  db:
+    build:
+      context: .
+      dockerfile: ./base/compose/postgres/Dockerfile
+    image: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_backups:/backups
+    env_file:
+      - .env
+    ports:
+      - "${DJANGO_PORTS:-5434:5432}"
+
+  redis:
+    deploy:
+      resources:
+        limits:
+          cpus: "${REDIS_CPUS:-0}"
+          memory: "${REDIS_MEMORY:-0}"
+    env_file:
+      - ".env"
+    image: "redis:6.2.4-buster"
+    restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
+    stop_grace_period: "3s"
+    sysctls:
+      - net.core.somaxconn=65535
+
+  celeryworker:
+    <<: *django
+    image: production_celeryworker
+    command: /start-celeryworker
+
+  celerybeat:
+    <<: *django
+    image: production_celerybeat
+    command: /start-celerybeat
+
+  flower:
+    <<: *django
+    image: production_flower
+    ports:
+      - "${FLOWER_PORTS:-5555:5555}"
+    command: /start-flower
