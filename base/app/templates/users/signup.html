@@ -20,6 +20,9 @@
             <input  type="password" placeholder="Password Confirmation" name="password_confirmation" class="form-control" required="true">
     </div>
     <button class="btn btn-primary btn-block mt-5" type="submit">Register</button>
+    <div class="text-center w-100">
+        <p class="text-muted font-weight-bold">Already Registered? <a href="{% url "users:login" %}" class="text-primary ml-2">Login</a></p>
+    </div>
 </form>
 
 {% endblock  %}
