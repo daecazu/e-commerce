@@ -1,0 +1,23 @@
+{% extends "users/base.html" %}
+{% block head_content %}
+<title>Sign in omni-dev-test</title>
+{% endblock  %}
+{% block container %}
+    {% if error %}
+    <p class="alert alert-danger">{{  error }}</p>
+    
+    {% endif %}
+    
+    <form action="{% url "users:login" %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <input  type="email" placeholder="Email" name="username" class="form-control">
+        </div>
+        
+        <div class="form-group">
+            <input  type="password" placeholder="Password" name="password" class="form-control">
+        </div>
+        <button class="btn btn-primary btn-block mt-5" type="submit">Sign in</button>
+    
+    </form>
+{% endblock  %}
