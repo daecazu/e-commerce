@@ -34,7 +34,7 @@ class Payment(models.Model):
         choices=PAYMENT_CHOICES,
         default=PROCESSING,
     )
-    orders = models.ManyToManyField('Order')
+    orders = models.ManyToManyField('Order', blank=True)
     def __str__(self):
         return f'status:{self.payment_status}'
 
@@ -68,14 +68,14 @@ class Order(models.Model):
         default=PROCESSING,
     )
     products = models.ManyToManyField(Product)
-    payments = models.ManyToManyField(Payment)
+    payments = models.ManyToManyField(Payment, blank=True)
     def __str__(self):
         return f'state:{self.order_status}'
 
 class Shipment(models.Model):
     PROCESSING = 'PR'
-    SENDING = 'OH'
-    RECEIVED = 'CD'
+    SENDING = 'SE'
+    RECEIVED = 'RE'
 
     SHIPMENT_CHOICES = [
         (PROCESSING, 'Processing'),
